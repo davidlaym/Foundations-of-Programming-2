@@ -1,8 +1,8 @@
-# Fundamenteos de Programación 2 #
+# Fundamentos de Programación 2 #
 > "Si al principio no resulta, intenta, intenta, intenta otra vez" - William E. Hickson
 
 ## Licencia ##
-Fundamenteos de Programación 2 está bajo la licencia Attribution-NonCommercial 3.0 Unported. **Este libro no le debiera haber costado dinero**
+Fundamentos de Programación 2 está bajo la licencia Attribution-NonCommercial 3.0 Unported. **Este libro no le debiera haber costado dinero**
 
 Eres libre de copiar, distribuir, modificar y/o compartir el libro. Sin embargo, solicito que siempre atribuyas este libro a mí, Karl Seguin, y que no lo uses para propósitos comerciales.
 
@@ -22,7 +22,7 @@ Su blog puede ser accedido desde <http://openmymind.net>, y sus tweets via [@kar
 El es también el fundador de servicios gratuitos para desarrolladores de juegos en <http://mogade.com>.
 
 ## Introducción ##
-Siempre me encuentro sorprendido por el número de programadores con los que me encuentro. Mucho de sus vidas lo dedican al trabajo del cual somos afortunados por tener la oportunidad de estar haciendo lo que amamos. Esta no es una propiedad única de los programadores, pero es lo suficientemente extraña para que la mayoría de la gente lo encuentre sorprendente. "¿Tu vas a casa y *trabajas* cada día?" nos preguntan. Solo nuestros más cercanos amigos y colegas apasionados entienden que *trabajo* tiene dos significados para nosotros, ninguno de los que es una esclavitud de 9 a 5.
+Siempre me encuentro sorprendido por el número de programadores con los que me encuentro. Mucho de sus vidas lo dedican al trabajo del cual somos afortunados por tener la oportunidad de estar haciendo lo que amamos. Esta no es una propiedad única de los programadores, pero es lo suficientemente extraña para que la mayoría de la gente lo encuentre sorprendente. "¿Vas a casa y *trabajas* cada día?" nos preguntan. Solo nuestros más cercanos amigos y colegas apasionados entienden que *trabajo* tiene dos significados para nosotros, ninguno de los que es una esclavitud de 9 a 5.
 
 Probablemente has notado que el entusiasmo y puje es una característica critica en un campo tan joven. La tecnología continúa cambiando a un paso acelerado, el campo está creciendo y los sistemas están cada día volviéndose más complejos. El resultado es una clara división entre programadores que aman su oficio y lo que no. Estas o bien leyendo, intentando y a veces fallando, o estás estancado en el pasado, probablemente ignorante de lo atrás que te has quedado.
 
@@ -67,49 +67,50 @@ No te culpo si eres escéptico. Todo lo que puedo hacer es prometer que mientras 
  
 Este trozo de código está lejos de la perfección. Si específicamente lo miramos desde una perspectiva de la testabilidad, podemos ver una cantidad de dependencias que lo harán difícil de testear, como por ejemplo `SqlServerDataStore.FindUser` y `Response.Redirect`, por nombrar algunas. Lamentablemente muchas de estas vienen incluidas en el framework, lo que es uno de los motivos por los que muchos programadores .Net tienen tan fuertes sentimientos en contra de WebForms. En este caso en particular, la practica imposibilidad de hacer tests me dice que este código va a ser difícil de cambiar y mantener.
 
-Muchas de las mejores prácticas que escuchas por ahi, como YAGNI (you aren't going to need it; no lo vas a necesitar), bajo acople y alta cohesión, puede ser medido mediante la observación del código y pensando cómo lo testearías. Un método que hace demasiado, potencialmente está violando tanto YAGNI como la alta cohesión, y requerirá una cantidad dolorosa de código inicial en un test, y probablemente va a ser muy fácil de quebrar.
+Muchas de las mejores prácticas que escuchas por ahí, como YAGNI (you aren't going to need it; no lo vas a necesitar), bajo acople y alta cohesión, puede ser medido mediante la observación del código y pensando cómo lo testearías. Un método que hace demasiado, potencialmente está violando tanto YAGNI como la alta cohesión, y requerirá una cantidad dolorosa de código inicial en un test, y probablemente va a ser muy fácil de quebrar.
 
-Hay un acrónimo  en la programación que se usa bastante: SOLID. Se refiere a cinco principios importantes del diseño orientado a objetos: Single responsibility principle (Principio de responsabilidad única), Open/close principle (Principio abierto/cerrado), Liskov substitution principle (Principio de substitución de Liskov), Interface segregation principle (Principio de segregación de interfaces) y Dependency inversion principle (Principio de inversión de dependencias). Estos son todos tópicos dignos de su propio capítulo, pero deberá bastar decir que muchos de ellos son algo ambiguos. ¿En qué momento  un nuevo comportamiento o mejora es considerado una responsabilidad o en cuál se le asigna un componente? ¿Cuándo una interfaz se vuelve demasiado compleja? Estas son preguntas importantes y respuestas equivocadas van a tener consecuencias. La testabilidad y la experiencia son herramientas que puedes usar para resolver esta ambigüedad. (Un buen lugar para comenzar a aprender sobre SOLID es en la <a href="http://en.wikipedia.org/wiki/Solid_(object-oriented_design)">Wikipedia</a>.)
+Hay un acrónimo  en la programación que se usa bastante: SOLID. Se refiere a cinco principios importantes del diseño orientado a objetos: Single responsibility principle (Principio de responsabilidad única), Open/close principle (Principio abierto/cerrado), Liskov substitution principle (Principio de substitución de Liskov), Interface segregation principle (Principio de segregación de interfaces) y Dependency inversion principle (Principio de inversión de dependencias). Estos son todos tópicos dignos de su propio capítulo, pero deberá bastar decir que muchos de ellos son algo ambiguos. ¿En qué momento un nuevo comportamiento o mejora es considerado una responsabilidad o en cuál se le asigna un componente? ¿Cuándo una interfaz se vuelve demasiado compleja? Estas son preguntas importantes y respuestas equivocadas van a tener consecuencias. La testabilidad y la experiencia son herramientas que puedes usar para resolver esta ambigüedad. (Un buen lugar para comenzar a aprender sobre SOLID es en la <a href="http://en.wikipedia.org/wiki/Solid_(object-oriented_design)">Wikipedia</a>.)
 
 ### Eficiencia: No tan simple como parece ###
 Puede que aún no me creas sobre la testabilidad como métrica de calidad, pero confío en que crees que la calidad es un aspecto de suprema importancia. Otro de nuestros objetivos pragmáticos es la eficiencia, debido a que no debemos demorarnos mucho en producir un código de gran calidad. Uno esperaría que la eficiencia en cuanto a aprender y mejorar, fuera algo fácil de medir: puedo lograr XYZ ahora más rápido de lo que lo hacía antes, pero no es así.
 
-Primero que nada, y lo más peligroso, es que los programadores no siempre nos damos cuenta de que hay mejores formas de hacer las cosas. Seamos honestos, muchos de los programadores rehúsa aceptar solo la posibilidad que exista. Es díficil para la gente, especialmente aquellos no muy apasionados sobre lo que hacen, el aceptar que hay mejores formas de hacer las cosas. No solo amenaza su comodidad, pero potencialmente sus carreras. Yo estaba en la escuela cuando Java iniciaba a ganar popularidad y quedé impresionado por lo cerrado de mente de los programadores que rehusaban aceptar que la recolección de basura automática, luego de corregir algunos menores problemas, podría ser algo muy útil (ni pensar en estándar). Ahora encuentro particularmente irónico ver programadores de Java reusando aceptar que los lenguajes dinámicos podrían convertirse en el nuevo Java (Especialmente dado que generalmente utilizan los mismos argumentos que los que usaban los programadores C++ contra Java)
+Primero que nada, y lo más peligroso, es que los programadores no siempre nos damos cuenta de que hay mejores formas de hacer las cosas. Seamos honestos, muchos de los programadores rehúsa aceptar solo la posibilidad que exista. Es difícil para la gente, especialmente aquellos no muy apasionados sobre lo que hacen, el aceptar que hay mejores formas de hacer las cosas. No solo amenaza su comodidad, pero potencialmente sus carreras. Yo estaba en la escuela cuando Java iniciaba a ganar popularidad y quedé impresionado por lo cerrado de mente de los programadores que rehusaban aceptar que la recolección de basura automática, luego de corregir algunos menores problemas, podría ser algo muy útil (ni pensar en estándar). Ahora encuentro particularmente irónico ver programadores de Java reusando aceptar que los lenguajes dinámicos podrían convertirse en el nuevo Java (Especialmente dado que generalmente utilizan los mismos argumentos que los que usaban los programadores C++ contra Java)
 
 Segundo, sin importar cuanto más eficiente es una tecnología o técnica, siempre serás más eficiente en lo que sabes versus lo que estás aprendiendo. Mi estrategia para sobrepasar esto es tomarme mi tiempo y reconocer que el proceso es una inversión de largo plazo. Además si eres astuto, probablemente puedas introducir algo de investigación en tu trabajo diario. Por astuto no quiero decir tramposo. Quiero decir que encuentres un proyecto secundario, no crítico. Aquel sistema de monitorización que querías hacer pero que nunca tuviste tiempo, o aquel prototipo que te solicitaron hacer. La aproximación exacta que tomes va a depender de tu forma de aprender. Todo lo que puedo decir es que no debieras esperar un incremento de productividad de la noche a la mañana.
 
 ### En Este Capítulo ###
-Eso fue mucho texto y poco código. Este capítulo sentó las bases para los que continúan, los que presentarán mucho código y ejemplos. Definimos lo que significa calidad para nosotros asi como las métricas que usaremos para medirlo (testabilidad). Miramos a la eficiencia y descubrimos que mientras parecía fácil de medir, no lo era. Toma un respiro y considera algo del código que has escrito recientemente. Si hiciste tests, ¿Qué podría haber hecho los tests más simples y que tuvieran menor posibilidad de fallar si el sistema cambia?. Si no lo hiciste, ¿Puedes imaginar algún inconveniente o problema que enfrentarías si decidieras hacer tests ahora?
+Eso fue mucho texto y poco código. Este capítulo sentó las bases para los que continúan, los que presentarán mucho código y ejemplos. Definimos lo que significa calidad para nosotros asi como las métricas que usaremos para medirlo (testabilidad). Miramos a la eficiencia y descubrimos que mientras parecía fácil de medir, no lo era. Toma un respiro y considera algo del código que has escrito recientemente. Si hiciste tests, ¿Qué podría haber hecho los tests más simples y que tuvieran menor posibilidad de fallar si el sistema cambia? Si no lo hiciste, ¿Puedes imaginar algún inconveniente o problema que enfrentarías si decidieras hacer tests ahora?
 
-## Chapter 2 - Yet Another IoC Introduction ##
-> "The purpose of software engineering is to control complexity, not to create it." - Pamela Zave
+## Capítulo 2 - Otra Introducción más a IoC ##
+> "El propósito de la ingeniería de software es controlar la complejidad, no crearla." - Pamela Zave
 
-Depending on what technology you use, Inversion of Control (IoC) and Dependency Injection (DI) may or may not be something you read about and spend energy on. In some languages IoC and DI play a significant and explicit role in development. In others, it's barely visible. That doesn't mean that IoC is less important or fundamental in some languages than in others. What is different is the mechanism used to achieve IoC, which is what's truly fascinating about the subject and why we are going to spend the next couple chapters learning more about it.
+Dependiendo de que tecnología uses, La Inversión de Control (IoC por sus siglas en inglés) y la Injección de Dependencias (DI por sus siglas en inglés) puede o no que sean algo en lo que pases leyendo o inviertas energía. En algunos lenguajes, IoC y DI juegan un rol explícito en el desarrollo. En otros, es casi invisible. Eso no significa que IoC es menos importante o fundamental en algunos lenguajes que en otros. Lo que es diferente es el mecanismo usado para lograr IoC, que es lo realmente facinante del asunto y es el porqué iremos a invertir un par de capítulos aprendiendo sobre esto.
 
-Our plan is to start with a brief introduction on IoC in this chapter. Then we'll look at the problem from different perspectives. The purpose isn't to label one approach better than another. Rather, our goal is to expand how we see, and possibly approach, a core challenge we constantly face while coding. When I finally saw IoC beyond the narrow understanding that I was introduced to, I felt like a new world had been opened up to me. Not because this is earth shattering knowledge - in fact, it probably won't even change how you code. What it did for me was validate the importance of expanding my knowledge beyond my comfort zone. It reinforced how ignorant I was (and still am), and knowing that you are ignorant is key to being a successful programmer.
+Nuestro plan es iniciar con una corta introducción a IoC en este capítulo, luego examinaremos el problema de distintas perspectivas. El propósito no es etiquetar una aproximación como mejor que otra, sino que expandir como vemos y nos enfrentamos a un desafío central que constantemente encontramos al programar. Cuando finalmente pude ver IoC más allá del estrecho entendimiento mediante el cual fui introducido, un nuevo mundo se abrió a mis ojos.  No porque este sea un conocimento que sacuda la tierra - de hecho quizás nisiquiera cambie tu forma de programar. Lo que hizo por mi fue validar la importancia de expandir mi conocimiento más alla de mi zona de comodidad. Me mostró lo ignorante que era (y aun soy), y saber que eres ignorante es la clave para ser un programador exitoso.
 
-### A Word on Coupling ###
-Before we look at IoC, let's understand the problem we are trying to solve. Coupling is what you get when something is dependent on something else. That something can be an assignment, a method, a class or even a whole system. Some examples:
+### Unas palabras sobre Acoplamiento ##
+Antes que iniciemos a examinar IoC, vamos a entender el problema que estamos tratando de solucionar. El acoplamiento es lo que obtienes cuando algo depende de otra cosa. Esa otra cosa puede ser una asignación, un método, una clase o incluso un sistema completo. Por ejemplo:
 
-	#The simplest code can couple us to another class or implementation
+	#Incluso el código más simple nos pueda acoplar a otra clase o implementación:
 	time = Time.now
 	
-	//...Something slightly more complex
+	//...Algo un poco más complejo
 	$('#logs').load('/orders/history', {id: _id});
 	
-	//...Or something a lot bigger
+	//...O algo mucho más grande
 	var richList = Session.Query<Account>().Where(a => a.Amount > 10000000).List();
 
-In each of the above examples, our code is dependent on some other implementation. Practically every line of code you write will, technically speaking, generate coupling. A lot of the time coupling is benign - no one's suggesting that you wrap every core library/type. However, more complex cases often lead to testability challenges, which indicate that code is hard to change and maintain.  The last example is the most obvious as it's impossible to test without actually hitting the database (we'll talk more about that in a future chapter, because hitting the database isn't at all a bad idea).
 
-The kinds of tight coupling we want to avoid are those that introduce dependencies between independent components or systems. Admittedly, saying that coupling makes it difficult to change the implementation isn't always compelling - sometimes you can be reasonably certain that the implementation is **not** going to change. However, tight coupling will also make it more difficult to maintain, reuse and refactor your code.
+En cada uno de los ejemplos anteriores, nuestro código es dependiente de alguna otra implementación. Practicamente toda linea de código que escribas, tecnicamente  hablando, va a generar acoplamiento. Gran parte del tiempo el acoplamiento es benigno (Nadie sugiere que realices envolturas para cada librería o dependencia), sin embargo casos más complejos terminan fácilmente en problemas de testeabilidad, lo que indica que el código es difícil de modificar y mantener. El último ejemplo es más obvio, dado que es imposible hacer tests sin efectibamente llegar a la base de datos (aunque hablaremos de esto en futuros capítulos ya que ir a la base de datos en un test no es para nada una mala idea).
 
-### Inversion of Control Basics ###
-If coupling (having X depend on Y) is the problem, then Inversion of Control is the solution. IoC is an umbrella term for various solutions that help us decouple or, at the very least, loosen coupling. The general idea is to change the normal (procedural) flow for something you have greater control over. To better understand the concept, let's look at the most common form of IoC in the .NET/Java world: Dependency Injection (DI).
+El tipo de acoplamiento fuerte que queremos evitar es el que introduce dependencias entre componentes o sistemas. Incluso cuando sabes que la implementación no va a cambiar, el acoplamiento hará difícil el refactoring y el mantenimiento.
 
-The name *Dependency Injection* is pretty telling of what the practice entails: injecting dependencies into our code rather than statically defining them (hard coding). We look at this form of IoC first not because it's better or simpler, but because the result is particularly explicit and because it's an approach that is independent of the language/framework/technology we are using.
+### Bases de la Inversión de Control ###
+Si el acoplamiento (que X sea dependiente de Y) es el problema, entonces la Inversión del control es la solución. IoC es un termino que engloba carias soluciones que nos ayudan a desacoplar, o cuando menos, reducir el acoplamiento. La idea general es cambiar el flujo procedural por algo en lo cual se tenga mayor control. Para mejor entender el concepto, veamos la forma más comun de IoC en .Net: Injección de Dependencias (DI).
 
-Take the following example:
+El nombre *Injección de Dependencias* dice mucho de lo que la técnica permite: Injectar dependencias en nuestro código en vez de definirlas de manera estática (en duro). Estamos examinando primero esta forma de IoC no porque sea la más simple o sea la mejor, pero porque el resultado es particularmente explicíto y debido a que es una aproximación independiente del lenguaje, del framewor o la tecnología que estemos usando.
+
+Un ejemplo:
 
 	public class UserRepository
 	{
@@ -121,7 +122,7 @@ Take the following example:
 		}
 	}
 
-This code has two dependencies which we'd do well to decouple: the first being `SqlDataStore` and the other the `BCrypt` library. The idea behind Dependency Injection is to take those two dependencies and supply them to our class/method, rather than having them hard coded. This can be done by passing them as arguments to our method, setting properties of our class, or, the most common approach, supplying them as constructor arguments. Each approach has its own advantages and drawbacks. They all provide the same benefits though: we externalize our dependencies and, in a statically typed world, can program against an interface. Here's the same code using Dependency Injection at the constructor level:
+Este código tiene dos dependencias de las que haríamos bien de desacoplarnos. La primera es `SqlDataStore` y la otra `BCrypt`. La idea detrás de la Injección de Dependencias es tomar estas dos dependencias y administrarlas hacia nuetstra clase o método, en vez de tenerlas en duro. Esto puede ser logrado pasandolas como argumentos a nuestro método, estableciendo propiedades en nuestra clase, o mediante el método más común: entregarlas al constructor de la clase como argumentos. Cada aproximación tiene sus propais ventajas y desventajas, pero todas proveen el mismo beneficio: externalizan la dependencia y en un mondo de tipos estáticos, se puede programar contra interfaces. Aquí vemos el ejemplo anterior re-escrito con Injección de dependencia al nivel del constructor:
 
 	public class UserRepository : IUserRepository
 	{
@@ -141,51 +142,56 @@ This code has two dependencies which we'd do well to decouple: the first being `
 		}	
 	}
 
-(For completeness sake, we made `UserRepository` implement an interface as well so that it too can now be injected into calling code).
+(Para dar un ejemplo completo hemos hecho que `UserRepository` implemente una interfaz también, de esa manera puede ser injectada hacia el código que la utiliza).
 
-Our code now shields us from direct implementations, making it easier to change, maintain and test. Also, while the `FindByCredentials` method might be seen by some as slightly less explicit (which I agree with), if you really think about it, you'll find that the `UserRepository` class as a whole is now more explicit. You can quickly look at the `UserRepository` constructor and gain a good understanding of *how* it achieves what it does. Yet another benefit, which we'll talk more about in a following chapter, is that constructor injection helps keep our classes cohesive (having a narrow, defined, purpose) - as having too many dependencies often means having a class that does too much.
 
-From the above example you should be able to guess what method and property injection look like. Injecting into a method is useful when only that method has a specific dependency (though it should be used sparingly as it's generally not a great sign about the cohesiveness between the method and its class). Property injection is great for optional dependencies (which is also quite rare). Property injection is also useful for internal framework code when you don't want or need inheriting classes having to expose complex constructors.
+Nuestro código ahora nos escuda de la implementación directa, haciendo más facil mantener, cambiar y probar la funcionalidad. También, mientras algunos puedan encontrar que el método `FindByCredentials` ahora es un poco más dificil de entender (con lo que estoy de acuerdo), si realmente te pones a pensar, vas a encontrar que la clase `UserRepository` como un todo es más entendible. Puedes fácilmente mirar el costructor de `UserRepository` y entender *como* logra lo que hace. Otro beneficio, del cual hablaremos más adelante, es que la injección por constructor ayuda a mantener nuestras clases cohesivas (a tener un propósito acotado y bien definido) - ya que al tener muchas dependencias generalmente significa que la clase está haciendo demasiadas cosas.
 
-### Dependency Injection Frameworks ###
-In the communities where DI is a common pattern, DI frameworks are readily available and talked about; thus we'll keep this rather brief. What you need to know is that the DI example we looked at above, when manually done, can add a noticeable amount of overhead to our coding. If, from user input to external service (database, web service, etc.), our code is roughly 4-5 levels deep, and your average class might have a dependency on 1-3 other classes/components, then tracking and instantiating our objects isn't going to be a whole lot of fun.
+Del ejemplo anterior debiera ser evidente cómo se verían las injecciones mediante propiedad o método. Injectar a un métod es útil solo cuando ese método tiene una dependencia específica (pero debiera ser usado de manera muy esporádica ya que un uso muy frecuente indica falta de cohesión entre la clase y los métodos). La injección mediante propiedades es ideal para dependencias opcionales (Que también son bastante raras). La injección mediante propiedad es también útil para el código interno de los frameworks, donde deseas que las clases que hereden no necesiten tener constructores muy complejos.
 
-This is where DI frameworks come into play. You configure them with the dependencies you want to use, and let the framework manage them handle object instantiation. In a way, you can think of them like the `new` keyword on steroids - able to figure out what parameters an object's constructor requires and how to create them (because they themselves might have dependencies which need to be resolved). This is known as auto-wiring.
+### Frameworks de Injección de Dependencias ###
+En las comunidades donde DI es un patrón común, los frameworks de DI son abundantes y muy populares, por lo que haremos de esta mensión  algo breve. Lo que necesitas saber es que el ejemplo que presentamos previamente, cuando es hecho de manera manual, puede añadir una cantidad considerable de sobrecarga a nuestra programación. Si nuestro código desde la interfaz de usuario hasta los servicios externos (bases dedatos, servicios web, etc) tiene 4 o 5 niveles de profundidad y nuestras clases en promedio tienen 1 a 3 depndencias, entonces instanciar y rastrear nuestros objetos no va a ser muy divertido.
 
-Let's look at an example using [Ninject](http://ninject.org/). The first thing we do is configure our DI framework. The details of this will vary based on the framework you use, Ninject uses a fluent interface.
+Es en enste pundo donde los frameworks de Injección de dependencia entran al juego. Los configuras con las dependencias que neceistas usar y luego dejas que el framework los administre y se preocupe de crear los objetos. Puedes pensar en ellos como en una super fábrica de objetos, que puede darse cuenta cuales son los servicios que una clase necesita y se los administra de manera automática, para entregarte una clase y todo su árbol de dependencias creado y listo para usar. 
+
+Veremos ahora un ejemplo de esto utilizando [Ninject](http://ninject.org/). La primera cosa que haremos es configurar nuestro framework DI. Los detalles de como se hace varían de un framework a otro. Ninject utiliza una configuración fluida.
 
 	private sealed class BoostrapDependencyModule : NinjectModule
 	{
 		public override void Load()
 		{
+            //Cuando pida un IUSerRepositoury, entrega una clase UserRepository
 			Bind<IUserRepository>().To<UserRepository>();
+            
+            //Cuando pida un IDataStore, entrega un SqlDataStore
 			Bind<IDataStore>().To<SqlDataStore>();
 				
-			//makes this a singleton
+			//Cuando pida un IEncryptor, entrega un Encryptor,
+            //pero siempre entregame el mismo (Singleton)
 			Bind<IEncryptor>().To<Encryptor>().InSingletonScope();
 		}
 	}
 
-We can now create an Ninject kernel and ask it for instances:
+Ahora podemos crear un kernell de Ninject y solicitarle instancias::
 
 	var kernel = new StandardKernel(new BoostrapDependencyModule());
 	var repository = kernel.Get<IUserRepository();
 
-The DI framework will see that the constructor for `UserRepository` (the configured instance for `IUserRepository` that we are asking for) requires two dependencies which it is aware of and thus be able to create an instance for us.
+El framework DI verá que le solicitamos un ´IUserRepository´, entonces revisa en su configuración que necesita entregar un `UserRepository`. En ese momento, revisa el constructor y entiende que tiene dos dependencias. Nuevamente revisa su configuración y encuentra estas dependencias, así que las crea y las injecta, y de esta forma es capaz de entregarnos una instancia lista para usar.
 
-Keep in mind that the goal of DI frameworks isn't to make your code dynamically pluggable. The idea isn't to be able to hot-swap your `SQLServerDataStore` with a `PostgreSQLServerDatastore`. It's simpler than that. We want to program against interfaces and have those interfaces injected where necessary. It's something we can do manually, but even simple examples can be a pain. The DI framework automates a very small, yet important, part of the process (object creation with auto-wiring).
+Mantén en mente que el objetivo de un framework DI no es hacer el código dinamicamente enlazable. Queremos ser capaces de programar contra interfaces injectadas donde sea necesario. Es algo que podemos hacer de manera manual, pero incluso ejemplos simples son un verdadero dolor. Un framework DI automatiza una pequela pero importante parte del proceso (Creación de objetos con dependencias).
 
-It's hard to pass up an opportunity to complain about XML-based configuration, so...Most .NET frameworks provide both code-based (as seen above) and XML-based configuration. The benefit of code-based is that you are able to refactor as well as test your configuration. There's no advantage to XML-based configuration, though some developers will state that with XML they don't need to recompile and retest their code. I say that's crap: a change to your configuration, regardless of where it's stored, needs to go through the same QA and deployment procedures as any other code change.
+Es difícil dejar pasar la oportunidad para quejarce por las configuraciones basadas en XML, asi que... La mayoría de los frameworks de DI en .Net proveen tanto configuraciones por código (como la que vimos arriba) como configuraciones mediante XML. El beneficio de usar configuraciones por código es que tienes la capacidad de refactorizar y testear tus configuraciones. No hay ninguna ventaja con configuraciones en XML, aunque algunos programadores argumentarán que con XML no necesitan recompilar para cambiar una dependencia. Yo digo que esos es basura: Un cambio en una configuración de dependencia, independiente de donde se almacene, amerita el mismo proceso de QA y publicación que cualquier otro cambio en la aplicación.
 
-### Dependency Injection Framework Anti Pattern ###
-Ending our introduction on Dependency Injection with what we covered above would be a disservice. We've covered the mechanics of DI and DI Frameworks, but in focusing on the *what*, we've introduced some pretty nasty *hows*. Our `kernel` instance from the last example is thread-safe, and we could create a static class and call something like `Factory.Get<T>` everywhere in our code. As we suggested above, DI frameworks can be seen as a replacement for `new`, so that might seem a logical approach. 
+### Anti patron de Injección de Dependencias ###
+Finalizar nuestra introducción a Injección de dependencias con lo que hemos cubierto hasta ahora sería desfavorable. Hemos cubierto las mecánicas de DI y los frameworks de DI, pero al enfocarnos en el *que* hemos introducido algunos feos *como*. Nuestra instancia de  `kernel` del ejemplo anterior es thread-safe, y podríamos crear una clase estática y llamarla algo como `Factory.Get<T>` en todas partes de nuestro código. Como sugerimos arriba, los frameworks de DI pueden verse como una suplantación de el keyword `new`, así que podría ser una buena aproximación. 
 	
-Using our DI framework in such a way is known as the Service Locator pattern, but it is generally viewed as an anti-pattern. You want to try to limit directly using the DI framework. If you are using a modern framework, there should be hooks where the framework stops and your code starts to make this possible. For example, ASP.NET MVC 1 and 2 allows you to provide a custom controller factory which can then be used as a starting point for the dependency resolution process (version 3 has even simpler to use hooks). In fact, most DI frameworks will provide these hooks for various frameworks, such as Ninject's `NinjectHttpApplication` which you simply inherit from, tell it about your modules, and move on. As a simple check, search your solution for how many times you are importing your DI's namespace (if you are using Ninject, you could search for `using Ninject`), hopefully you won't find it in more than 4 or 5 places.
 
-The point is that with static languages, DI should be more of a configuration/setup exercise than a coding one. You might end up calling it directly at the lowest levels, but the automatic resolution should flow from there. If you are using a framework that doesn't make this possible in all but a few cases, use a different framework.
+Usar nuestro framework de DI de esta forma es conocido como el patrón Service Locator, pero es generalmente percibido como un anti-patrón. Uno necesita limitar el uso directo del framework DI. Si estás usando un framework moderno, debieran haber puntos en los cuales puedas introducir la resolución de dependencias mediante el framework DI. Por ejemplo. ASP.NET MVC 1 y 2 permiten que proveas un controller factory personalizado, que puede ser usado como punto de inicio para la resolución de dependencias (La versión 3 tiene un modelo aun más simple) De hecho, la mayoría de los frameworks DI proveerán estas extensiones para diversos Frameworks, como es el caso del `NinjectHttpApplication` de ninject,  del cual simplemente heredas y le configuras los modelos y listo. Como un check simple, revisa cuantas veces estás importanto el namespace de tu framework DI. No debieras encontrarlo en más de 4 o 5 lugares.
+El punto es que con lenguajes de tipos estáticos, los frameworks de DI debieran ser un ejercicio solo de configuración que de programación. Puede que te encuentres llamando al kernell de manera directa en las partes más bajas de tu código, pero la resolución de dependencias automática debiera encargarse de ese punto en adelante. Si tu framework de DI no permite realizar esto, cambia el framework por uno más potente.
 
-### In This Chapter ###
-In this chapter we looked at what Inversion of Control is as well as the problem we are trying to solve with it (reducing coupling). We also saw a common IoC pattern, Dependency Injection. For a lot of developers this is a different way of programming and thinking. Remember though that we do gain a lot from it: code is easier to change and refactor, classes with poor cohesion are easier to spot and tests are easier to write. 
+### En este Capítulo ###
+En este capítulo hemos visto que es Inversión de Control y el problema que estamos tratando de solucionar con esto (reducción de acoplamiento). También vimos un patrón comun de IoC: la Injección de dependencia. Para muchos programadores esta es una forma diferente de programar y pensar. En todo caso, recuerden que ganamos mucho de esto: El código es más fácil de cambiar y refactorizar, clases con baja cohesión son fáciles de descubrir y los tests son más faciles de hacer.
 
 ## Chapter 3 - IoC 180&deg; ##
 > "If you do not raise your eyes you will think that you are the highest point" - Antonio Porchia
