@@ -191,4 +191,94 @@ Usar nuestro framework de DI de esta forma es conocido como el patrón Service Lo
 El punto es que con lenguajes de tipos estáticos, los frameworks de DI debieran ser un ejercicio solo de configuración que de programación. Puede que te encuentres llamando al kernell de manera directa en las partes más bajas de tu código, pero la resolución de dependencias automática debiera encargarse de ese punto en adelante. Si tu framework de DI no permite realizar esto, cambia el framework por uno más potente.
 
 ### En este Capítulo ###
-En este capítulo hemos visto que es Inversión de Control y el problema que estamos tratando de solucionar con esto (reducción de acoplamiento). También vimos un patrón comun de IoC: la Injección de dependencia. Para muchos programadores esta es una forma diferente de programar y pensar. En todo caso, recuerden que ganamos mucho de esto: El código es más fácil de cambiar y refactorizar, clases con baja cohesión son fáciles de descubrir y los tests son más faciles de hacer.
+En este capítulo hemos visto que es Inversión de Control como también el problema que estamos tratando de solucionar (reducción de acoplamiento). También vimos un patrón comun de IoC: la Injección de dependencia. Para muchos programadores esta es una forma diferente de programar y pensar. En todo caso, recuerden que ganamos mucho de esto: El código es más fácil de cambiar y refactorizar, clases con baja cohesión son fáciles de descubrir y los tests son más faciles de hacer.
+
+## Capítulo 3 - IOC de cabeza ##
+> "Si no elevas la mirada, vas a pensar que eres el punto más alto" - Antonio Porchia
+
+Al comenzar el aprendizaje de IoC y realizar los primeros experimentos con un framework de DI, nunca te preguntas si hay otra forma de resolver dependencias. DI es bastante simple y a la vez hace juego con la forma en que la mayoría de la gente organiza su código .Net o Java. DI es un patrón adecuado para programación orientada a objetos en lenguajes estáticos... pero cambia a un paradigma diferente y encontrarás soluciones diferentes.
+
+### Cambio de mente dinámico ###
+Es común para los desarrolladores pensar que los lenguajes dinámicos y el tipado dinámico son sinónimos. Es cierto que muchos (pero no todos) los lenguajes dinámicos tienen un sistema de tipos dinámico. Pero el hecho es que los lenguajes dinámicos realizan muchas cosas en tiempo de ejecución que en un lenguaje estático se hacen al momento de compilar. La implicancia es que con un lenguaje dinámico los desarrolladores tienen mayores capacidades en tiempo de ejecución que sus contrapartes estáticas.
+
+Al principio este poder extra puede verse como de poca utilidad. Después de todo, ¿Qué tan frecuentemente necesitas cambiar el código en tiempo de ejecución? Bueno, como es en la mayoría de los casos, no sabemos lo que necesitamos hasta que lo tenemos a disposición y luego nos preguntamos qué hacíamos antes de tenerlo. Piénsalo en términos de las características añadidas a C# con el paso del tiempo: tipos genéricos (Generics), métodos anónimos, LINQ (por nombrar algunos). Un runtime dinámico es lo mismo, el impacto es difícil de comprender mientras estés restringido por tus experiencias en lenguajes estáticos. Reflection no es una parte integral de tu código porque es limitado y complicado; pero si fuera poderoso y simple probablemente sería una herramienta que utilizarías día a día (para ser honesto, comparar los lenguajes dinámicos con Reflection es tremendamente injusto para los lenguajes dinámicos, pero solamente estamos tratando de establecer algunos paralelos)
+
+¿Qué tiene esto que ver con la Inversión de Control? La naturaleza flexible de los lenguajes dinámicos significan que IoC está directamente implementado en la mayoría de los lenguajes dinámicos. No hay necesidades de inyectar parámetros o usar frameworks. Simplemente utiliza las capacidades del lenguaje. Veamos un ejemplo:
+
+	class User
+	  def self.find_user(username, password)
+	    user = first(:conditions => {:username => username})
+	    user.nil? || !Encryptor.password_match(user, password) ? nil : user
+	  end
+	end
+    
+Nuestro código tiene dos dependencias: `first` va a acceder a un almacenaje subyacente (lo que puede que no sea obvio si no eres familiar con Ruby) y `Encryptor` es una clase inventada para comparar el hash del password del usuario junto con el entregado. En un mundo estático ambos serían complicados. En Ruby y otros lenguajes dinámicos es simplemente asunto de cambiar la implementación de `first` y `Encryptor`:
+
+	def password_match_returns(expected)
+		metaclass = class << Encryptor; self; end
+		metaclass.send :define_method, :password_match do
+			return expected
+		end
+	end
+  
+	def first_returns(expected)
+		metaclass = class << User; self; end
+		metaclass.send :define_method, :first do
+			return expected
+		end
+	end
+    
+Mantén una mente abierta y recuerda que este código puede ser tan misterioso para ti como métodos anónimos y lambdas para otras personas. Discutiremos el código en más detalle pero primero miraremos a cómo es utilizado:
+
+	it "returns the found user" do
+	  user = User.new
+	  first_returns(user)
+	  password_match_returns(true)
+	  User.find_user('leto', 'ghanima').should == user
+	end
+    
+En la vida real utilizarías un framework de mocking para que se haga cargo de esto y que provea una sintaxis más limpia y otras características más poderosas. Pero, haciendo a un lado un poco de magia, podemos ver que nuestros dos métodos redefinen los métodos `first` y `password_match` en tiempo de ejecución para que implementen un comportamiento que nuestros test pueden utilizar. Para realmente iniciar a entender esto necesitaremos cubrir clases "Singleton" (de solo una instancia).
+
+#### Singleton y Metaclases ####
+
+En C#, Java y muchos de los demás lenguajes estáticos, una clase puede seguramente verse como una plantilla rígida. Uno define campos y métodos y compila el código usando las clases como un contrato inmutable. Las clases sirven un propósito muy útil como una herramienta de diseño. El problema de las clases, sin ser culpa de ellas, es que muchos desarrolladores piensan que las clases y la programación orientada a objetos son una y la misma. No lo son. La programación orientada a objetos, como el nombre indica, es acerca de los objetos. En lenguajes estáticos esto significa instancias. Dado que las instancias están fuertemente ligadas con su respectiva clase, es fácil entender por qué los desarrolladores mezclan los conceptos.
+
+Pero si miras más allá de los lenguajes estáticos y veras una historia distinta. No solo no hay ley que diga que las clases no puedan ser entes vivos por sí mismos, sino que también verás que la programación orientada a objetos puede existir felizmente sin clases. El mejor ejemplo con el que probablemente ya eres familiar es Javascript. Contempla la POO sin clases:
+ 
+	var leto = {
+		fullName: 'Leto Atreides II',
+		title: 'Emperor',
+		yearOfBirth: 10207,
+		getAngryWithDuncan: function(duncan) {
+			duncan.alive = false;
+		}
+	};
+	
+	var duncan = {
+		ghola: true,
+		alive: true
+	};
+	
+	leto.getAngryWithDuncan(duncan);
+   
+Como siempre, el punto no es que una forma es mejor que la otra, sino obtener distintas perspectivas. Si haces POO de una sola forma por mucho tiempo, terminarás comprometiendo tu capacidad para crecer como profesional.
+
+Si bien la orientación a objetos no *requiere* de clases, son muy útiles como plantillas. Es en este punto donde Ruby y las clases singleton brillan; porque como lo hemos mencionado, no hay ley que diga que una clase no pueda cambiar.
+
+En Ruby todo objeto tiene su propia clase, llamada una clase singleton. Esto te permite definir miembros en instancias específicas, por ejemplo:
+
+	class Sayan
+		# our class defition for a Sayan
+	end
+	
+	goku = Sayan.new
+	vegeta = Sayan.new
+	
+	def goku.is_over_9000?
+		true #in ruby, the last executed statement is automatically returned
+	end
+	
+	p goku.is_over_9000?  	=> true
+	p vegeta.is_over_9000?	=> NoMethodError: undefined method `is_over_9000?'
+
+Técnicamente no estamos añadiendo el método `is_over_9000?` al objeto `goku`, sino que la estamos agregando a la clase singleton oculta de la cual el objeto `goku` hereda y por lo tanto tiene acceso. 
