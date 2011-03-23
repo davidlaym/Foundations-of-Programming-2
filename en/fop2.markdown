@@ -10,7 +10,7 @@ You can see the full text of the license at:
 <http://creativecommons.org/licenses/by-nc/3.0/legalcode>
 
 ## Latest Version ##
-This book is currently in development. The final release is expected to be in early February 2011.
+This book is currently in development.
 
 To get the latest version, visit <http://github.com/karlseguin/foundations2>.
 
@@ -448,7 +448,7 @@ Depending on your experience with Ruby and jQuery, this chapter might have been 
 
 So far we've framed the discussion around the idea of testability as a quality metric. Now it's time to look at writing actual tests. There are a number of benefits to writing tests. The most important, in my opinion, is the impact on code quality. I'd easily argue that writing tests is a design exercise since it helps flush out a bunch of anti-patterns that make your code unsustainable. Beyond that, writing tests  helps ensure that your code does what it's supposed to do, and acts as an important safety net when you make changes.
 
-I won't lie to you. Writing effective tests isn't something that happens overnight. It's a long-term investment that'll benefit both your code and you. It can be a pain, both as you get started and even when you are experienced. It will slow you down at first, but even on your first attempt the benefits should outweigh the costs. Remember though, you don't have to test everything. Start with the most critical parts of your system. As a developer, being effective at unit testing should be one of the skills you excel at. Start today, take the hit in productivity and learn. Learning to write effective tests is, hands down, the single most important piece of advice I could give an aspiring developer.
+I won't lie to you. Writing effective tests isn't something that happens overnight. It's a long-term investment that'll benefit both your code and you. It can be a pain, both as you get started and even when you are experienced. It will slow you down at first, but even on your first attempt the benefits will outweigh the costs. Remember though, you don't have to test everything. Start with the most critical parts of your system. As a developer, being effective at unit testing should be one of the skills you excel at. Start today, take the hit in productivity and learn. Learning to write effective tests is, hands down, the single most important piece of advice I could give an aspiring developer.
 
 ### Testing Basics ###
 Before we can look at testing best practices, we need to lay down a basic foundation. If this is a newish topic for you, you might have noticed a lot of acronyms, competing ideas and approaches. My own experience says that if you start writing tests today you'll steadily progress to writing effective tests. The journey from learning to mastering is a critical learning process, which you couldn't avoid if you wanted to (regardless of a fancy acronym someone gave a phase). For the rest of this chapter we'll talk about **unit tests**. Unit tests assert the most atomic aspects of your system, be it technical details or behavioral expectations. Unit tests leverage a testing framework. Our C# examples will use [NUnit](http://www.nunit.org/), our Ruby examples will use [RSpec](http://rspec.info/) and our JavaScript will use [QUnit](http://docs.jquery.com/Qunit). Let's look at our first example:
@@ -578,3 +578,704 @@ Most mocking frameworks are actually quite powerful. The above examples are the 
 
 ### In This Chapter ###
 This chapter focused on the basics of unit testing and mocking. One of the most important things we discussed was exactly what a unit test is. Essentially, we saw how one simple method had four distinct behavior, each a good candidate for an individual test. We also looked at mocking, which is both a powerful and complicated tool. If it still isn't clear, maybe because of the somewhat odd syntax, go back and look at the manual approach that we took. It's more important to understand the concept of mocking in general than the implementation of the mocking frameworks. That said, understanding proxying in a static language is an important concept; you'll run into it everywhere and probably even want to take advantage of it yourself.
+
+## Chapter 5 - Effective Testing ##
+ > "A fool with a tool is still a fool." - Grady Booch
+
+I've mentioned that the path to writing effective tests is as important as testing itself. I feel this way because of my own experience. I'm sure I'll continue to sharpen my skill, but after a few years I feel that I have become effective at writing tests. During those years, I tested too much, not enough, wrote brittle tests, wrote integration tests disguised as unit tests and unit tests disguised as integration tests. As I progressed, largely by trying to correct things that didn't feel right from previous attempts, I learnt a lot about writing good code (not just good tests).
+
+Despite the lessons learned from the journey, there's no doubt that, at times, it was a frustrating process. I realized that a lot of material focuses on introducing unit testing (much like chapter 4), but little went beyond that. The journey is important but we can do more than point you to the starting line.
+
+## Brittleness ##
+A good place to start is to explain *what is an effective test?* At a high level I consider an effective test one which is explicit and not brittle.
+
+We could simply define a brittle test as one which fails often, but that isn't quite right. A test should only be considered brittle, which is bad, when it fails due to unrelated changes. As you make changes to your code, which tests will break the code and which ones won't. But you do want tests to break! There's nothing worse than having a bunch of unit tests, making a change to your code, expecting one or more tests to fail, yet everything still passes.
+
+Let's look at some properties of good tests which help reduce brittleness.
+
+### Tests should be fast ###
+
+Before we look at anything else, your tests need to be fast. This might seem like an odd thing to start with, but slow tests are nearly worthless. The best way we have to identify brittle tests, is to run our tests often as we make changes. It's generally a sign that something's wrong when small changes break a lot of tests. When you only run your tests after making large/numerous changes, it becomes harder to tell whether a test is brittle or not. Running our tests often is paramount to identifying and resolving brittle tests. Having quick tests is paramount to running them often.
+
+I don't have any hard rules on how often you should run your tests, or how long your tests should take to run. I can tell you that there's a direct relation between the two - the quicker your tests, the more likely you are to run them often. I can also tell you that a test that takes a second is a long test.
+
+You might have a group of tests that run noticeably slower. Integration tests and UI tests are common culprits. It can be useful to separate these from your faster unit tests so that each group can be run independently. However, even in these cases, work should be done to improve the speed - headless UI testing with [Zombie](http://zombie.labnotes.org/) or [Capybara](https://github.com/jnicklas/capybara) as well as testing against in-memory databases like [SQLite](http://www.sqlite.org/) can have significant advantages. 
+
+(Traditional UI testing requires that you load the GUI and simulate user actions. For example, many websites make use [Selenium](http://seleniumhq.org/) to drive this simulation through a real browser. While such testing can be very realistic, it also tends to be slow. Headless testing on the other hand does UI testing without loading the actual GUI client. For websites, headless frameworks let you test against the rendered HTML, say by asserting that a button with an `id` of `login` exists and clicking it logs the user in. All of this can happen without ever loading an actual browser. These tests tend to be much faster and in my opinion are always worth the tradeoff in less realism. To be honest, testing with tools such as Selenium feels to me like you are testing the browser more than your own code. Of course, given the current state of web browsers, that isn't always a bad thing.)
+
+
+### Tests should be focused ###
+
+If you don't want to spend all your time maintaining your tests, you'll want to make sure that each one verifies a specific behavior. In chapter 4 we saw how our small `passwordIsValid` method was covered by four distinct tests. This not only makes our code easier to read and write, but it also helps us quickly resolve a broken test and move on. Small and focused tests take seconds to fix. 
+
+You'll often write a test and assert something, only to be tempted to assert something else. You'll think to yourself *Well, I've set this all up and everything, what's the harm in checking this one other thing?*. The harm is that your test can now break for two completely different reasons. That doesn't mean you should only have one `Assert`, but you do need to be careful about asserting too much.
+
+I have a quick way to tell whether a test is doing too much: when I name the test, am I tempted to use the word *and* or *or*? If we combined two of our tests from chapter 4 into a single one, such as:
+
+	it "should be invalid when the password is blank or it doesn't match the confirmation" do
+	  ...
+	end
+
+It'd be a sure sign that our test is doing too much.
+
+There's another advantage to writing focused tests: it helps flush out methods which themselves do too much. If you're trying to write a test, but you realize that you're having to setup numerous expectations, mock objects, dependencies and so on, then your problem isn't with your test, it's with your code. Remember, cohesive code is fundamental to good design, and tests that require a lot of setup are always indicators of poor cohesion.
+
+The [Law of Demeter](http://en.wikipedia.org/wiki/Law_of_Demeter) and [Tell, Don't Ask](http://pragprog.com/articles/tell-dont-ask) are particularly relevant design guideline worth familiarizing yourself with. The general idea is that code shouldn't reach outside of what's immediately available. For example, if a method takes a `user` parameter, it can safely access `user.IsValid()`, but reaching deeper into `user` by calling `user.GetRole().CanUpdateSite()` starts to get dangerous. For me, this is one of those *rules* which I find hard to visualize or even understand. Until I write a test that is, then it becomes painfully evident that something isn't right. You can often fix the code under test by looking at your test and saying *"this is how I should be able to test this"*. Of course, this is core to what we've been talking about since the start: testing is a means to drive proper design.
+
+As you write more tests and code you'll notice other patterns emerge. For example, you'll learn to hate anything but simple assignments in your constructors (as you should!). It won't take long before you start to see your tests as design tools more than anything else. 
+
+### Tests should be meaningful ###
+
+At first this might sound silly, but I think it's common for developers new to testing to test too much. Test code that can break. Simple getters, setters and constructors? Forget about them. 
+
+This brings up the topic of code coverage. Code coverage is the amount (normally as a percentage) of your code which is *covered* by your tests. Code coverage tools run your tests and figure out if a line of code has been executed or not. These tools tend to do one thing very well, and one thing very poorly. They are great for telling you when code hasn't been executed. If a line hasn't been executed, then it's a safe bet you don't have any tests for it (which, again, might not be a huge deal if it's code that can't break, like a simple getter). However, they are horrible at telling you if your coverage is meaningful. Just because your test passes over a piece of code doesn't mean you are actually doing anything meaningful.
+
+This test will give us 100% coverage, but doesn't actually do anything (and this isn't just about missing assertions, code can easily be *covered* and asserted in a meaningless way)
+
+	public static int Add(int a, int b)
+	{
+	  return a + b;
+	}
+	
+	[Test]
+	public void ItAddsTheNumbers()
+	{
+	  Add(1, 2);
+	}
+
+### Tests shouldn't care about implementation details  ###
+
+This is one of the trickiest things to get right. Unlike the other rules, there'll be a lot of times when you won't want to follow it. More often than not though, it's good advice. The idea is that most of your tests shouldn't care too much about how something is implemented.
+
+The first example, which always gets asked, is: don't test private methods. If you properly test your public interface, your private implementation will get properly covered. It's really that simple. As far as your test is concerned, imagine that the private method is actually inlined within the code you are testing.
+
+A less common example is inheritance. When you are testing a class which inherits from another class, pretend that it doesn't. Inheritance being used to avoid duplication is a detail which is irrelevant to the behavior you are testing. Yes, this means that you'll end up duplicating tests for the `manager.HasTooManyVacationDays()` and the `employee.HasTooManyVacationDays()`, but it will result in less brittle and more readable tests.
+
+## A Heart to Heart about Stubs and Mocks ##
+
+The first time unit testing clicks for most people is when they start to use a mocking framework. Without such frameworks, testing is impractical. Mocking frameworks enable you to achieve two things. The first
+is that they let you focus on behaviors without having to worry about implementation details. The second is that they let you test the interactions between your dependent objects. Combine these two benefits together and you get code which does what it's supposed to at an individual behavior level and as a complex system.  If X and Y work individually, and X is properly integrated with Y, then things are looking good.
+
+Unfortunately, people go overboard. They rely too heavily on mocks and focus too much on the integration of their components. It's probably the exact opposite of what you've been told, but mock objects can actually increase the coupling within your tests and with it their brittleness. Let's look at an example method:
+
+	public User FindByEmail(string email)
+	{
+		var user = _store.FindOneByNamedQuery("FindByEmail", new {email = email});
+		return user != null && user.Status == UserStatus.Active ? user : null;
+	}
+
+Something we'll want to test is that `null` is returned if the user's `Status` isn't `Active`:
+
+	[Test]
+	public void ReturnsNullWhenTheUserIsntActive()
+	{
+		var store = A.Fake<IDataStore>();
+		A.CallTo(() => store.FindOneByNamedQuery("FindByEmail", new {email = "fake@email.com"})).Returns(new User{Status = UserStatus.Disabled});
+		var repository = new UserRepository(store);
+		Assert.IsNull(repository.FindByEmail("fake@email.com"));
+	}
+
+It's a simple test, but if you look closely you should see two separate things being tested. Don't see it? Answer this question: what happens if we change the name of the query from *FindByEmail* to *FindUserByEmail?* Answer: the test will fail. Here's the more important question: *should it?* Answer: no. This specific test really shouldn't care about the persistence details, all it cares about is that a user with an invalid status is returned as `null`.
+
+There are two alternatives approaches to the above test. First, most mocking frameworks can behave more like stubs (dumb mocks). So we could rewrite our above expectation as:
+
+		A.CallTo(() => store.FindoneByNamedQuery(null, null)).WithAnyArguments().Returns(new User{Status = UserStatus.Disabled});
+		
+		//or, even better:
+		Any.CallTo(store).WithReturnType<User>().Returns(new User{Status = UserStatus.Disabled});
+
+This first approach is a step in the right direction. The examples become increasingly ignorant about the implementation details and therefore become more robust to changes.
+
+The second approach is to rely on the real implementation. Given a proper setup, our test can be turned into to:
+
+	[Test]
+	public void ReturnsNullWhenTheUserIsntActive()
+	{
+	  var user = new UserRepository(new SqlDataStore()).FindByEmail("invaliduser@email.com");
+		Assert.IsNull(user);
+	}
+
+(this *is* an over-simplification, because you really do need to set it up properly)
+
+These are all complementary approaches. I've come to the opinion that they must all be leveraged in order to have effective tests. If you are new to testing, avoid the pitfall of leaning too heavily on overly specific mocks.
+
+### My Current Rhythm ###
+
+Let's go back to an old example and test it using what we just learnt. First, the method:
+
+	public User FindByCredentials(string username, string password)
+	{
+		var user = _store.FindOneByNamedQuery("FindUserByUserName", new {username = username});
+		if (user == null) { return null; }
+		return _encryption.CheckPassword(user.Password, password) ? user : null;
+	}
+
+First we'll verify the behavior:
+
+	[Test]
+	public void ReturnsNullWhenTheUserDoesntExist()
+	{
+	  var store = A.Fake<IDataStore>();
+	  
+	  Any.CallTo(store).WithReturnType<User>().Returns(null);
+	  var user = new UserRepository(store, null).FindByCredentials("a", "b");
+	  
+	  Assert.IsNull(user)
+	}
+	
+	[Test]
+	public void ReturnsNullIfThePasswordsDontMatch()
+	{
+	  var store = A.Fake<IDataStore>();
+	  var encryption = A.Fake<IEncryption>();
+	  
+	  Any.CallTo(store).WithReturnType<User>().Returns(new User());
+	  Any.CallTo(encryption).WithReturnType<bool>().Returns(false);
+	  var user = new UserRepository(store, encryption).FindByCredentials("a", "b");
+	  
+	  Assert.IsNull(user)	  
+	}
+	
+	[Test]
+	public void ReturnTheValidUser()
+	{
+	  var store = A.Fake<IDataStore>();
+	  var encryption = A.Fake<IEncryption>();
+	  var expected = new User();
+	  
+	  Any.CallTo(store).WithReturnType<User>().Returns(expected);
+	  Any.CallTo(encryption).WithReturnType<bool>().Returns(true);
+	  var user = new UserRepository(store, encryption).FindByCredentials("a", "b");
+	  
+	  Assert.AreSame(expected, user);
+	}
+
+Know that we are specifying the return type via `WithReturnType<T>()` due to limitations of static languages - if I could, I'd get rid of it.
+  
+Next we'll write tests to specifically verify that our class properly interacts with its dependencies:
+
+ 	[Test]
+	public void LoadsTheUserFromTheDataStore()
+	{
+	  var store = A.Fake<IDataStore>();
+    new UserRepository(store, A.Fake<IEncryption>()).FindByCredentials("a", "b");
+	  A.CallTo(() => store.FindOneByNamedQuery("FindUserByUserName", new {username = "a"})).MustHaveHappened();  
+	}
+	
+	[Test]
+	public void VerifiesTheSubmittedPasswordAgainstTheStoredOne() 
+	{
+	  var store = A.Fake<IDataStore>();
+	  var encryption = A.Fake<IEncryption>();
+    var user = new User{Passowrd = "admin"};
+    
+	  Any.CallTo(store).WithReturnType<User>().Returns(user);
+    new UserRepository(store, encryption).FindByCredentials("a", "b");
+    
+	  A.CallTo(() => encryption.CheckPassword("admin", "b"))).MustHaveHappened();  
+	}
+
+The goal is to make each test as specific as possible while reducing any knowledge of anything which isn't necessary. Not only are the behavioral tests reasonably isolated from the implementation, but they are decently isolated from each other. This is also true of our interaction tests. Rather than breaking three over-burdened tests, a change to our implementation is likely to break a single test. It's as much a matter of how many tests can you isolate from such changes (or, put another way, what is the minimum number of tests you can expose) as well as how easy it is to repair the tests that must break.
+
+### About Hitting The Database ###
+
+Our above examples opted to leverage stubs instead of relying on the actual implementations. Using the actual encryption implementation would have been trivial, but using a real data store would have required additional planning. I think you should seriously consider hitting a real database/service in some of your tests. For some tests and components it will just make the most sense, and beyond that it provides an extra layer of sanity checks. 
+
+We won't cover how to do this in any detail. It should be straightforward to implement. There are a lot of different ways to do this. Some people like to use a lightweight database, potentially even with in-memory capabilities (like SQLite). Others keep an existing database and simply truncate all the tables before each test (most databases have a way to programmatically do this). Or you can drop your tables and re-create them. It's partially a matter of preference. It can also vary based on your specific case.
+
+I can say that I generally drop all the tables and re-create them before each test (you should have your create statement all written out anyways!). There are a couple reasons not to drop your tables after each test. First, if a test fails you won't be able to see your data. Secondly, if something goes wrong, it's more likely to have a negative impact on the following test.
+
+Just don't be afraid to try. Although speed hasn't been an issue for me with these types of test, due remember that you can always separate them from your faster unit tests.
+
+### Equality, Identity and Tests ###
+
+I've written many tests which made unnecessary assumptions about the implementation of my code with respect to identity and equality. Many times it's important to make the distinction, but just as often it isn't.
+
+One of the tests we just wrote made such an assumption, here it is again:
+
+	[Test]
+	public void ReturnTheValidUser()
+	{
+	  var store = A.Fake<IDataStore>();
+	  var encryption = A.Fake<IEncryption>();
+	  var expected = new User();
+	  
+	  Any.CallTo(store).WithReturnType<User>().Returns(expected);
+	  Any.CallTo(encryption).WithReturnType<bool>().Returns(true);
+	  var user = new UserRepository(store, encryption).FindByCredentials("a", "b");
+	  
+	  Assert.AreSame(expected, user);
+	}
+
+Our test is assuming that our class will return the same instance which our store returned. To be honest, this is probably a safe assumption. It's quite benign and I'd probably keep it like it is. I nonetheless wanted to point it out as an assumption that may or may not be desired or safe.
+
+I have a strong opinion about collection parameters to dependencies. Unless you have specific reason to, you are almost always better off doing a value check of the items within the collection. This is especially true in a LINQ-enabled world where new collection instances might be generated (filtered/mapped/et.) from a supplied parameter.
+
+### In This Chapter ###
+
+The focus of this chapter was on writing effective unit tests. While we covered a few high level topics, such as performance, the real intent was to look at mocking in greater detail. I do think using mocks as a crutch is a common and serious problem. They are tremendously useful and you should use them, just don't mix them up with your behavioral tests. Thankfully most mocking frameworks can generate exactly the kind of stub we're interested in. Furthermore, don't shy away from playing around with unit tests which border on integration tests. Once you have the code to properly set things up, they are quick to write and provide some of your most important coverage.
+
+## Appendix A - jQuery Basics ##
+ > "I love jQuery" - The Internet
+
+There's a common anecdote given by web developers that goes something like *I hated JavaScript, then jQuery came along and now I love it*. jQuery is a JavaScript library which takes the pain out of manipulating the DOM and creating reusable JavaScript code. It isn't the only framework of its kind, but it has established itself as the most popular. Part of what makes jQuery so powerful is that it focuses on a few specific things, allowing it to be very good at those. There are two parts to mastering jQuery: the basics of the library and how to use the basics to build your own plugins.
+
+A huge part of knowing jQuery is knowing the `jQuery` method and jQuery object. The `jQuery` method is responsible for turning a normal HTML DOM element into a jQuery object. `$` is a shorthand for `jQuery`, the two are interchangeable, but most people prefer to use `$` (I know, it seems magical, but it's just a function name - JavaScript allows such characters in function names). A jQuery object is a wrapper around a DOM element which provides all types of useful manipulation and traversing methods. Let's first look at the jQuery method, and then look at jQuery objects.
+
+### jQuery() ###
+In its simplest form, the `jQuery` method will turn a DOM element into a jQuery element:
+	
+		<div id="main"></div>
+		
+		<script type="text/javascript">
+			var domElement = document.getElementById('main');
+			
+			var $main = $(domElement);
+			
+			//or (same thing):
+			var $main = jQuery(domElement);
+		</script>
+(using $ as a prefix to jQuery object variables is a convention I like, if you don't, don't use it.)
+
+Being able to turn a DOM element into a jQuery object is useful, as we'll see in a bit. However, the real power of the `jQuery` method (and jQuery in general) is its ability to take a CSS selector and turn that directly into a jQuery object wrapping the underlying DOM. This is nice for a couple of reasons. First, you probably already know how CSS selectors work. Second, CSS selectors have proven to be quite flexible and powerful at selecting elements. Knowing this, we can drop the call to `getElementById` from the above example and simply do:
+
+	var $main = $('#main');
+
+Because, in CSS, you target an element by id using the `#ID` selector. Also, jQuery takes care of cross browser incompatibilities for you. It doesn't matter that IE6 (or 7) doesn't support attribute selector such as `input[type="text"]`. The jQuery selector syntax is **like** CSS selectors, but it uses its own engine, independent of the browser's.
+
+### jQuery object ###
+Before we dig too deeply into the `jQuery` method, let's get up to speed with what it returns: a jQuery object. Actually, the method **always** returns an array of jQuery objects - even when you know it should just return a single value, like in the above code when we selected by id. This actually turns out to provide some nice consistency, in addition to cleaner code (no null checking), as should become evident as we move forward. A jQuery object can be manipulated via various built-in jQuery methods, 3rd party plugins, or your own custom plugins. For now, we'll stick to the built-in methods. Let's look at some examples:
+
+	$main.text('welcome!');
+	$main.addClass('heading');
+	$main.click(function()
+	{
+		alert('WELCOME!');
+	});
+
+As a general rule, a jQuery method (built-in or not) returns the array of jQuery object being manipulated. This means that method calls are meant to be chained, so the above can be rewritten as:
+
+	$main.text('welcome').addClass('heading').click(function()
+	{
+		alert('WELCOME!');
+	});
+
+When dealing with an array of jQuery objects with more than 1 element, all elements are affected. When dealing with an empty element, nothing happens.
+
+The built-in jQuery method can be broken down into specific categories of behavior. Let's look at a few of the methods in each category.
+
+#### Attribute Methods ####
+Attribute methods let you manipulate the HTML attributes of the DOM elements your jQuery array wraps. We already saw the `text` and `addClass` methods above, but there are also the more generic `attr` and `css` methods, as well as a handful of others:
+
+	$links.attr('href', '#')
+		.text('DOH!')
+		.removeClass('active');
+
+Some jQuery attribute methods have a fairly unique property: they don't return the original array of jQuery objects. Luckily, this is actually pretty intuitive. You see, most of them can be used for both setting a value (like we see above) or reading a value. When reading a value, logically, the value itself is returned (and it's only the first value of the array):
+
+	var firstLink = $('a').attr('href');
+	var tablesBorder = $('table.list').css('border');
+	var username = $('input[name="username"]).val();
+
+#### Traversing ####
+jQuery has an extensive number of traversal methods which let you get to jQuery objects starting from other jQuery objects. The simplest example is the `children` method:
+
+	<ul id="menu">
+		<li><a href="#" class="current">home</a></li>
+		<li><a href="#">login</a></li>
+		<li><a href="#>register</a></li>
+	</ul>
+
+	<script type="text/javascript">
+		var $menuItems = $('ul li');
+		//or
+		var $menuItems = $('ul').children();
+	</script>
+
+The `find` method is similar to `children` except it looks at the children of children (all the way down). So, to find the current menu item, we could do any of the following:
+
+	var $current = $('.current'); //might return more than we want
+	var $current = $('#menu .current'); //just a normal css selector
+	var $current = $('#menu').find('.current');
+	var $current = $('#menu').children().children('.current');
+	var $current = $('#menu a').filter('.current');
+
+Here we see both `find` and `filter` at play (as well as an overload of `children` which takes a selector). All of this is just the tip of the iceberg of both what's built in and what's possible. Here are two other common examples:
+
+	$current.sibling().addClass('notActive');
+	var $menu = $current.closest('ul');
+
+`sibling` is self-explanatory. `closest` is the opposite of `find` going **up** the hierarchy looking for a match. There's also `parent` which finds the immediate parent, but if you find yourself chaining calls to `parent` it'll almost always be better to use `closest`:
+
+	var $menu = $current.closest('ul'); //much better than:
+	var $menu = $current.parent().parent();
+
+It's possible that you are put off by the seemingly limitless way you can target specific elements. The truth is that in real code and with experience, a best way is generally obvious.
+
+#### Manipulation ####
+The manipulation methods give us great control over changing our elements. There's some overlap between these and the attribute methods, so we'll focus on moving things around:
+
+	$('#menu').clone().appendTo($('body'));
+	$('.current').remove();
+	$('#menu a').wrapAll('<p></p>');
+
+These kinds of methods are particularly useful when writing plugins but aren't as useful as standalone calls.
+
+#### Events ####
+Event methods let you cleanly hook up events (again, in a cross-platform manner) to jQuery objects. For example, not all browsers support the CSS `:hover` pseudo-selector on all types of elements, but with jQuery we can use the `mouseenter` and `mouseleave` events to accomplish something similar (there's also a `hover` event, but I find it somewhat cumbersome):
+
+	$('tr').mouseenter(function()
+	{
+		$(this).addClass('hover');
+	}).mouseleave(function()
+	{
+		$(this).removeClass('hover');
+	}).click(function()
+	{
+		alert('Your clicked the row at index: ' + $(this).index());
+	});
+
+Woah, what's all `$(this)` about? `this` is the one tricky thing you'll have to really think about if you want to learn jQuery - it's where normal JavaScript bleeds into jQuery. `this` is a special keyword in JavaScript which has special contextual meaning. Change the context, and chances are `this` will mean something else (when you think about it, this is true of C# as well). When JavaScript raises an event, `this` becomes the DOM element on which the event was raised. In our example above, `this` is the table row (tr) which caused either a mouse enter or mouse leave event. As we saw in our very first jQuery example, a DOM element can be turned into a jQuery element by using the `jQuery` method. So, in short, `$(this)` is turning the DOM element represented by `this` (which in the case of events is the DOM element which caused the event) into a jQuery object.
+
+#### document.ready ####
+There's one special event that we probably should have talked about by now. All of our jQuery examples have placed our JavaScript code directly in a &lt;script&gt; tag. This will work. However, it can cause some odd flickering as the page first loads and displays the initial state, and then your jQuery code changes it. Ideally, we want to apply our manipulation as soon as the elements are loaded, but before they are displayed. In standard HTML, there's a `readyStateChanged` event which can be used for just this type of thing. jQuery provides a handy way to leverage it:
+
+	$(document).ready(function()
+	{
+		//all your code should go here
+	});
+
+If you've been following along, the above should be a pretty clear 2 step process. First, we turn the `document` element into a jQuery object (`$(document)`), next we hook into its `ready` event.
+
+### Bringing It Together ###
+When you put all the pieces together, you end up with the capability to write some pretty nice JavaScript code with a minimum amount of effort. For example, let's use what we've learned to build some basic tabs (this is an ideal candidate for a plugin, but let's not worry about that for now):
+
+	<style>
+		a.active{font-weight:bold;}
+	</style>
+
+	<ul class="tabs">
+		<li><a href="#main">main</a></li>
+		<li><a href="#about">about</a></li>
+		<li><a href="#download">download</a></li>
+	</ul>
+	
+	<div id="main" class="panel">This is the main panel</div>
+	<div id="about" class="panel">this is the about panel</div>
+	<div id="download" class="panel">this is the download panel</div>
+	
+	<script type="text/javascript">
+	$(document).ready(function()
+	{
+		var $panels = $('.panel').hide();
+		
+		var $links = $('.tabs a'); 
+		$links.click(function()
+		{
+			var $link = $(this);
+			$links.removeClass('active');
+			$link.addClass('active');
+			
+			$panels.hide();
+			$panels.filter($link.attr('href')).show();	
+		}).filter(':first').click();
+	});
+	</script>
+
+There isn't too too much going on here. The first thing we do is get a reference to and hide all of the panels. Next we hook into the click event for each of our menu's links. Within this event we do a few things, but it all starts by getting a reference to the clicked link. We remove the `active` class from all links and hide all the panels (there are a lot of ways we could have done this, but this is probably the simplest). The last step within the click event is to show the corresponding panel (notice that link's href conveniently references the appropriate panel's id). There's one last step, which is easy to miss, and that is we trigger a `click` on the first link (we'll look at the `:first` selector in the next section). This last step, accomplished via the useful `filter` method, causes our page to initialize to a reasonable default.
+
+### In This Chapter ###
+We've only covered a small part of jQuery's built-in capabilities. There are ajax methods and effect methods we didn't look at, as well as many more selectors, traversal, manipulation and events. What's important to take away from this chapter is that the `jQuery` method (or `$`) takes a CSS selector (or less frequently an existing DOM object) and returns an array of jQuery objects. These jQuery objects have a number of built-in methods which aren't only valuable by themselves, but serve as the foundation for writing your own methods that can encompass a specific behavior (which is what the next chapter is all about).
+
+## Appendix B - Advanced jQuery ##
+jQuery is a rewarding library to learn, not only because what you learn in the first 30 minutes can be of real use, but also because the foundations you learn early on serves as the backbone for more advance usage. This chapter is dedicated to a few of those more advanced jQuery usages.
+
+### Custom Selectors ###
+Our story, thus far, has been that jQuery uses CSS selectors (including some of the more advanced CSS3 selectors). While this is true, jQuery also has its own selectors which are quite handy. These custom selectors are easy to spot as they always begin with a colon. We already saw one in our final example of the previous chapter, `:first`. There's also a corresponding `:last` selector. Beyond these, and a handful of others there are a few which are worth pointing out.
+
+#### :not ####
+The `:not` selector looks for the inverse of the supplied selector. You use it like so:
+
+	var $notFirst = $('.tabs a').filter(':not(:first)');
+	//or
+	var $notFirst = $('.tabs :not(a:first)');
+
+As you can see `:not` is special, though not unique, as it takes a sort of argument to work.
+
+#### :eq ####
+The `:eq` selector, like `:not`, takes an argument which is the index of the element we want to find:
+
+	//yes, it's base zero
+	var $secondLink = $('a:eq(1)');
+
+It isn't too uncommon that you'll see and use this ugly code:
+
+	var $item = $('td:eq(' + i + ')');
+
+Where i would be the index of a cell you want to find.
+
+#### :visible and :hidden ####
+`:visible` and `:hidden` aren't particularly advanced, but they are useful enough to point out. They work like you think, and they work surprisingly well. They both go beyond simply checking the CSS visibility of an item, but also its height and all types of things which really indicate whether the item is visible or not. In our tabs example from the previous chapter, instead of potentially hiding already hidden panels, we could have done:
+
+	//only hide the visible panels
+	$panels.filter(':visible').hide();
+
+Though, to be honest, I think it's simpler just to hide them all.
+
+#### Writing Your Own ####
+Occasionally you might need to write your own selector. This doesn't happen often, but on a few occasions I've had need to find elements by their `innerText` value (there's a `:contains` selector, but that does a fuzzy search, I wanted an exact one). jQuery makes this easy:
+
+	$.expr[':'].textIs = function(obj, index, meta, stack){
+			return obj.innerText == meta[3];
+	};
+
+We attach our own function to jQuery's `$.expr[:]` object named `textIs`. The first parameter is the DOM element being compared (we could convert that to a jQuery object if we needed to). The second parameter is the index of this particular element with respect to all potential matches. The meta parameter is information about the actual selector - you can think of it as the captures from a regular expression, and you'll probably need to `console.log(meta)` to get a sense for what part you are interested in. The last parameter is an array of all the potentially found elements (so `stack[index] == obj`) - this is useful if your selector is doing something relative to other elements.
+
+#### Hierarchy Flattening ####
+There's at least one thing which isn't intuitive about how selectors work (well, to me at least). Despite the fact that the DOM is a hierarchy, the `jQuery` method always flattens results. What do I mean by this? Say we wanted to add a class to the last column of every row. You might be tempted to try:
+
+	$('tbody tr').children('td:last').addClass('last');
+
+But if your table has more than 1 row, this isn't going to work. When you call `children`, the cells aren't grouped by rows, they are flattened into a single array. Therefore, the above code is only going to apply the `last` class to the very last cell of the entire table. The solution is to use the `each` method:
+
+	$('tbody tr').each(function(index, tr)
+	{
+		$(tr).children(':last').addClass('last');
+	});
+
+The `each` method, along with events, is where you are most likely to turn a DOM element into a jQuery object.
+
+#### DOM Creation ####
+We've seen how we can use the `jQuery` method to get a jQuery object form a CSS selector or from an existing DOM element. The method actually has a third usage: creating new elements. If you pass `$` an HTML tag, it'll create the corresponding element:
+
+	var $div = $('<div>');
+
+You can even get fancy:
+
+	var $div = $('<div class="neato">neat!</div>');
+	//or
+	var $div = $('<div>').addClass('neato').text('neat!');
+
+Note that an element created this way isn't added to the DOM by default - only you know where it ought to go:
+
+	var $div = $('<div class="error">').appendTo($('#header'));
+
+### AJAX ###
+jQuery has a handful of methods which makes writing ajax code simple. The first two are `$.get` and `$.post` which, as you can probably guess, issue an ajax `get` and `post` respectively. They both take 4 parameters: the URL, the data, a callback, and a return type:
+
+	$.get('/user', {id: 123}, function(response, status)
+	{
+		//do something
+	}, 'json');
+	
+	$.post('/game', {name: 'TileFlod', version: 2}, gameSaved, 'html');
+	function gameSaved(response, status) 
+	{
+		//do something
+	}
+
+This is probably a good time to point out that given a form object, you can call `serialize` on it to get submittable data:
+
+	$.post('/game', $('#addGame').serialize(), ..., ...);
+
+Both of the above methods actually abstract the more powerful `$.ajax` method. This method takes a single object literal:
+
+	$.ajax(
+	{
+		async: false,
+		cache: false,
+		url: '/game',
+		type: 'get',
+		success: function(response, status) {
+			
+		},
+		//and so on
+	});
+
+Finally, the last ajax method that we'll look at is the `load` plugin. `load` abstracts `$.get` or `$.post` (depending on whether data is provided), and automatically loads the response into the calling object:
+
+	$('#myDiv').load('/about/moreinfo');
+
+Which is equivalent to:
+
+	$.get('/about/moreinfo', null, function(response)
+	{
+		$('myDiv').html(response);
+	}, 'html');
+
+
+### Delegates ###
+Sooner or later you're going to want to sprinkle your jQuery goodness over dynamically loaded HTML. The most common example is a list of rows, with a click event (to see the details) which dynamically grows/changes. An ugly solution, which might be quite tricky at times, is to hook events as your new rows come in.
+
+	//called initially for the statically loaded rows
+	var $list = $('#myList');
+	$list.find('tr').click(showDetails);
+	
+	function showDetails(row)
+	{
+		//do something
+	}
+	
+	//somewhere else in your code:
+	$('#add').click(function()
+	{
+		$.post(URL, PARAMS, function(newRow)
+		{
+			$(newRow).click(showDetails).appendTo($list.find('tbody'));
+		});
+	});
+
+You aren't only repeating the code to set up the click, but you're also polluting the save process with details about the table's display. There's yet another problem with the above approach - it doesn't scale. I know talking about scalability with respect to "client-side" code might seem odd, but add enough event handlers and you really might start having performance issues.
+
+The solution? jQuery has a `delegate` method which works by attaching a single event to a parent element which then watches (or delegates) to child elements. Let's rewrite the above code to use it:
+
+	var $list = $('#myList');
+	$list.delegate('tr', 'click', showDetails);
+	
+	function showDetails(row)
+	{
+		//do something
+	}
+
+That's it. Rows which are dynamically added later are automatically covered by the delegate since it exists on their (future) parent table. The code says that whenever a `tr` element within `#myList` is `click`ed execute `showDetails`. The selector, the first parameter, can be any jQuery selector. The implementation relies on bubbling, which does mean that for some events it won't work, but for the most common (like `click`) it's an extremely powerful solution.
+
+Its worth pointing out that jQuery also has a `live` method, which is very similar to `delegate`:
+
+	$('tr').live('click', showDetails);
+	
+	function showDetails(row)
+	{
+		//do something
+	}
+
+While the syntax for `live` is nicer, it lacks a scope that `delegate` has. This results in poorer performance, and also less control (you might not want to apply this to **every** `tr` on the page). 
+
+### Writing Plugins ###
+So far we've looked at a number of built-in jQuery methods which, while useful on their own, truly shine when used within plugins. I like to think of plugins as belonging to one of two categories. The first category is for UI plugins, like tabs or dialogs. The second is for more task specific plugins, often bringing multiple UI plugins together to accomplish something pretty specific within a page/app. Both are built the exact same way, the only difference is that you want to make sure UI plugins are truly reusable. (It's worth noting that there's a large number of existing quality and free UI plugins available for jQuery, just google for them).
+
+Whenever I write a plugin I start with a basic template. At first, parts of the template might seem difficult. We'll go over those difficult parts, but even if you don't fully understand it now, you can easily use it and safely ignore the plumbing. First though, when you call a method on a jQuery object, be it a built-in method or a plugin, that method exists within the the `jQuery.fn` object. So, a basic example might look something like:
+
+	//remember $ and jQuery are the same thing
+	$.fn.tabs = function()
+	{
+			//do something
+	};
+
+Since it's possible for another library to define `$` (this was a common problem before jQuery become overwhelmingly popular), there's a safer way to write the same code:
+
+	(function($))
+	{
+		$.fn.tabs = function()
+		{
+			
+		};
+	})(jQuery);
+
+I know it looks a little crazy, but it's quite neat and worth understanding. There's nothing more complicated here than defining a dynamic method and passing in a parameter. Look at a more explicit example:
+	
+	(function(question, answer)
+	{
+		alert(question + ' ' + answer);
+	})('its over', 9000)();
+
+We define a method that takes 2 parameters, `question` and `answer`, and then invoke it with with two values `its over` and `9000`.
+
+The jQuery example is the same, except it's a single parameter which we name `$` and we pass in the `jQuery` object. The effect is that even if `$` is defined as something else globally, within our dynamic method (technically a closure), it's simply a parameter which we've assigned to `jQuery` (another library could always come along and redefine `jQuery`, but that's less likely).
+
+The other thing that's important to remember when writing a plugin is that, like most built-in jQuery methods, you should write your plugin so that it both works on an array of jQuery objects and so that it returns the jQuery object (this allows your plugin to be used in a method chain). 
+
+With that out of the way our template (which follows the two rules we've discussed above) looks like:
+
+	(function($) 
+	{
+	  var defaults = {};
+	  $.fn.PLUGINNAME = function(options) 
+	  {        
+	    var opts = $.extend({}, defaults, options);
+	    return this.each(function() 
+	    {
+	      if (this.PLUGINNAME) { return false; }
+	      var self = 
+	      {   
+	        initialize: function()
+	        {
+        
+	        }
+	      };
+	      this.PLUGINNAME = self;
+	      self.initialize();      
+	    });
+	  };
+	})(jQuery);
+
+All you need to do for your own plugin is copy the above and replace the three instances of `PLUGINNAME` with the name of your own plugin. The `defaults` variable is used for your plugins default values - which can be overwritten by supplying a options when creating your plugin. Notice the call `return this.each`, this is the magic that makes our plugin work against and array of jQuery object and which returns that array. We also store our plugin within the item by calling `this.PLUGINNAME = self` and when we setup the plugin, we return if `this.PLUGINNAME` is not null - this makes sure that, for a given element, our plugin is only defined once.
+
+Let's use this template to rewrite our `tabs` code from the previous chapter to get a better idea of how this all actually works:
+
+	<style>
+		a.active{font-weight:bold;}
+	</style>
+	
+	<ul class="tabs">
+		<li><a href="#main">main</a></li>
+		<li><a href="#about">about</a></li>
+		<li><a href="#download">download</a></li>
+	</ul>
+	<div id="mainPanels">
+		<div id="main" class="panel">This is the main panel</div>
+		<div id="about" class="panel">this is the about panel</div>
+		<div id="download" class="panel">this is the download panel</div>
+	</div>
+	
+	(function($) 
+	{
+	  var defaults = {initialTab: ':first', panelContainer: null};
+	  $.fn.tabs = function(options) 
+	  {
+		
+			//overwrites the detauls with the supplied options
+	    var opts = $.extend({}, defaults, options);
+	    
+			return this.each(function() 
+			{
+	      if (this.tabs) { return false; }
+			 
+				//we can define fields for our plugin to have access to
+				var $tabContainer = $(this);
+				var $links = $tabContainer.find('a');
+				var $panelContainer = $(opts.panelContainer);
+	    
+	  		var self = 
+	  		{   
+	        initialize: function()
+	        {
+						self.hidePanels();
+      			$links.click(self.clicked).filter(opts.initialTab).click();
+	        },
+					clicked: function() 
+					{
+						var $link = $(this);
+						$links.removeClass('active');
+						$link.addClass('active');
+						self.hidePanels();
+						$panelContainer.find($link.attr('href')).show();
+					},
+					hidePanels: function() 
+					{
+						$panelContainer.find('.panel').hide();
+					}
+	      };
+	      this.tabs = self;
+	      self.initialize();      
+	    });
+	  };
+	})(jQuery);
+
+We've made some slight modifications to make the plugin more reusable, but for the most part not much has changed. We can call this plugin by simply doing:
+
+	$('.tabs').tabs({panelContainer: '#mainPanels'});
+
+Most of my plugins follow the same pattern. The real trick, as I mentioned before, is to keep plugins focused. As you start to write plugins, there'll likely be some discomfort about purpose. Each of your page will likely have unique needs and it might be tempting to write a large plugin for each. You can start this way, but try to refactor common code out into their own plugins.
+
+### In This Chapter ###
+Over the last two chapter's we've seen the power of jQuery. Yet, for all its flexibility, the truth is that jQuery is an extremely simple and focused library. If you understand and remember the fundamentals - how the `$` can be used, understanding the relationship between a DOM element and its jQuery wrapper, and knowing what `this` means in a given context - then you'll easily master jQuery. It's a library worth knowing, not just because of how useful it is, but also because it showcases what a good library should be like - focused and simple, yet somehow easily extensible. Don't get overwhelmed though, since we did cover a lot of material. Start small and, at your own pace, move forward.
