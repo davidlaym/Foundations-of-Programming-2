@@ -281,4 +281,71 @@ En Ruby todo objeto tiene su propia clase, llamada una clase singleton. Esto te 
 	p goku.is_over_9000?  	=> true
 	p vegeta.is_over_9000?	=> NoMethodError: undefined method `is_over_9000?'
 
-Técnicamente no estamos añadiendo el método `is_over_9000?` al objeto `goku`, sino que la estamos agregando a la clase singleton oculta de la cual el objeto `goku` hereda y por lo tanto tiene acceso. 
+Técnicamente no estamos añadiendo el método `is_over_9000?` al objeto `goku`, sino que lo estamos agregando a la clase singleton oculta de la cual el objeto `goku` hereda y por lo tanto tiene acceso. Decimos que la clase singleton es invisible porque tanto `goku.class` y `vegeta.class` retornan `Sayan`. Hay formas de exponer la clase singeton, pero cuando no estás haciendo metaprogramación, las clases singleton son transparentes.
+
+Para obtener acceso a la clase singleton, que es en si un objeto real, usamos la sintaxis `class << ` syntax. Por ejemplo, el método `is_over_9000?` podría ser definido de la siguiente manera:
+
+	class << goku
+		def is_over_9000?
+			true
+		end
+	end
+    
+Si queremos asignar la clase singleton a una variagle, podemos simplemente exponer `self`:
+
+	singleton = class << goku
+		self
+	end
+	
+	#o más comun y conciso, usando ; en vez de saltos de línea
+	singleton = class << goku; self; end
+
+Interesantemente (y no estoy seguro de porqué lo encuentro interesante), si observamos a las instancias `goku` and `singleton` obtenemos el siguiente resultado:
+
+	goku
+	=> #<Sayan:0x10053a1f0>
+	singleton
+	=> #<Class:#<Sayan:0x10053a1f0>>
+
+En Ruby, todo es un objeto, incluso una clase es un objeto (que hereda de `Class`, que a su vez hereda de `Object`). Esto significa que puedes invocar métodos en tus clases:
+
+	Sayan.is_a?(Object)
+	=> true
+	Sayan.is_a?(Integer)
+	=> false
+	Sayan.to_s
+	=> "Sayan"
+    
+ Dado que las clases son objetos, también tienen clases singleton (que generalmente son llamadas metaclases). Podemos tener acceso a la metaclase de una clase mediante la misma sintaxis anterior `class <<`:
+ 
+	metaclass = class << Sayan
+		self
+	end
+	#or, the more consice approach
+	metaclass = class << Sayan; self; end
+
+Las clases Singleton no son realmente algo con lo que estarás trabajando muy seguido, pero son importantes porque los métodos de las clases son definidos en sus metaclases. Los métodos de una clase son muy similares a los métodos estácticos en lenguajes como C# o Java. Son definidos en dos posibles formas y son usados de la forma que esperarías:
+
+	class Sayan
+		# Primera forma de definir un método de clase, usando self.nombreDeMetodo
+		def self.find_most_powerful()
+		  # todo
+		end
+		
+		# segunda forma, mediante la metaclase
+		class << self
+			def all_by_level(superSayanLevel)
+				# todo
+			end
+		end
+	end
+	
+	powerfulSayans = Sayan.all_by_level(3)
+ 
+(Enteder `self` en Ruby, especialmente lo que `self` representa en distintos contextos, es importante para aprender el lenguaje)
+
+La diferencia clave entre los métodos de clase en Ruby y los métodos estáticos en Java/C# es que las los métodos de clase son definidos en la metaclase que es un objeto. Dicho de otra forma, mientras los métodos de clase puedan parecerse a métodos estáticos, son en realidad más similares a métodos de instancia.
+
+¿Qué sacamos de todo esto? Mucha de la rigidez que encontrarás en un lenguaje estático no existe en un lenguaje dinamico. Clases selladas, metodos no virtuales y métodos estáticos, que son mecanimsos para prevenir que hagas ciertas cosas, desaparecen. Hay pros y contras a cada paradigma, pero no hay razón para dejar de conocer a cada uno.
+
+Quiero, eso si, dejar claro que desde el punto de vista de la capacidad de prueba, tiene muchas ventajas. - la dificultad de probar un método estático `password_match` en C# debiera ser prueba suficiente de que no podemos simplemente sobreescribir la implementacion como hicimos en el inicio del capítulo, simplemente porque las clases no son objetos. DI, o siquiera las interfaces no son necesarias en Ruby. El desacople que se logra en C# mediante inyeción de interfaces y administración de dependencias es reemplazado por la propia naturaleza del lenguaje Ruby.
