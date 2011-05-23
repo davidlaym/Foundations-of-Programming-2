@@ -350,3 +350,66 @@ La diferencia clave entre los métodos de clase en Ruby y los métodos estáticos e
 
 Quiero, eso si, dejar claro que desde el punto de vista de la capacidad de prueba, tiene muchas ventajas. - la dificultad de probar un método estático `password_match` en C# debiera ser prueba suficiente de que no podemos simplemente sobrescribir la implementación como hicimos en el inicio del capítulo, simplemente porque las clases no son objetos. DI, o siquiera las interfaces no son necesarias en Ruby. El desacople que se logra en C# mediante inyección de interfaces y administración de dependencias es reemplazado por la propia naturaleza del lenguaje Ruby.
 
+### Eventos / Callbacks ###
+Otra forma de reducir el acoplamiento es utilizando eventos y callbacks. Es bien conocido que los eventos, por su propia naturaleza, proveen protección contra el acoplamiento. El código que lanza un evento declara *no me interesa quien eres o lo que vas a hacer, pero es tiempo de hacerlo.* Puede haber 0 manejadores, o cientos y pueden hacer un conjunto de cosas sin relación entre ellas, pero nada de eso le importa a quien lanza el evento. El código termina siendo fácil de probar ya que desde el punto de vista del emisor, solo tienes que probar que el evento ha sido emitido y desde el punto de los interesados, que el método ha sido subscrito.
+
+La razón por la cual no usamos eventos en todas partes es porque simplemente no se ajustan al flujo lineal que usamos para la mayoría de nuestro código. Sin embargo, en los últimos años esto ha empezado a cambiar. ¿Por qué? El renacer de Javascript. Ahora tenemos mucho más código en Javascript y muchos programadores están abandonando sus percepciones (generalmente negativas) y aprendiendo el lenguaje. Javascript ya no es un lugar en donde baste confiar en hacks y esperar que todo siga funcionando. Ha habido un cambio hacia un Javascript de calidad y mantenible. Esto significa que necesitamos comenzar a preocuparnos del acoplamiento, la cohesión y la testeabilidad. Cuando se trata de aquello, eventos son en Javascript lo que DI es para Java/C# o metaprogramación es para Ruby.
+
+Digamos que eres un maestro de [jQuery](http://www.jquery.com/) (si no lo eres, puedes saltar al Apendice A y B para iniciar esa jornada cuando quieras) y has construido una cantidad de plugins. Estas son cosas que planeamos reusar a lo largo de nuestro sitio. Muchas de estas plugins van a neceisitar interactuar con las demás. Por ejemplo, una de las plugins convierte una simple lista de filas en una rejilla ordenable y paginable y otra permite que un formulario sea enviado mediante AJAX. Por supuesto, cuando el usuario envía un nuevo registro mediante el formulario AJAX, la rejilla debe actualizarce. Primero veamos la configuración básica:
+
+	// aplica el plugin fancyGrid al elemento con el id users
+	$('#users').fancyGrid();
+	
+	// aplica el plugin fancySubmit al elemento con el id add_user
+	$('#add_user').fancySubmit();
+
+El centro de nuestra plugin `fancySubmit` sería algo tan simple como:
+
+	(function($) 
+	{
+	  $.fn.fancySubmit = function(options)
+	  {
+	    return this.each(function()
+	    {
+	      var $form = $(this);
+	      var self = 
+	      {   
+	        initialize: function() 
+	        {
+         		$form.submit(function()
+         		{
+         			$.post($form.attr('action'), $form.serialize(), self.handleResponse);
+         			return false;	
+         		});
+	        },
+	        handleResponse: function(r)
+	        {
+	        	//what to do here?
+	        }
+	      };
+	      this.fancySubmit = self;
+	      self.initialize();      
+	    });
+	  };
+	})(jQuery);
+
+(Si jQuery no te es familar, este código está interceptando el evento `submit` del formulario para enviar los datos mediante AJAX. La respuesta es luego manejada por la función `handleResponse`. Nuevamente, quizas quieras saltar a los Apendices A y B para tomar velocidad en jQuery.)
+
+`handleResponse` puede manejar casos genéricos (errores, validación) diréctamente, pero cualquier cosa más específica va a depender del contexto en el cual esté siendo usado. ¿La solución? Permitir que un callback sea entregado al plugin y llamarlo cuando sea tiempo.
+
+	handleResponse: function(r){
+		// agregar aquí (quizás) algún manejo generico
+		if (options.onSubmit != null) { options.onSubmit(r); }
+	}
+
+Con este cambio tan simple ahora podemos enlazar las dos plugins sin que una sepa de la otra:
+
+	// Aplica el plugin fancyGrid al elemento con el plugin users
+	var $users = $('#users').fancyGrid();
+	
+	// Aplica el plugin fancySubmit al elemento con el id add_user
+	$('#add_user').fancySubmit({
+		onSubmit: function(r) { $users.fancyGrid('newRow', r); }
+	});
+
+Usando esta forma, las dos plugisn trabajan juntas sin saber nada una de la otra. esto ayuda a asegurar que tu código se mantenga altamente reusable y cohesivo.
