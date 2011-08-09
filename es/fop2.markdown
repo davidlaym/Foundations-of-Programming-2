@@ -21,6 +21,9 @@ Su blog puede ser accedido desde <http://openmymind.net>, y sus tweets via [@kar
 
 El es también el fundador de servicios gratuitos para desarrolladores de juegos en <http://mogade.com>.
 
+## Acerca del Traductor ##
+David Lay es un desarrollador con experiencia principalmente en .Net con deseos de aprender y continuar aprendiendo otros paradigmas y plataformas. Ha diseñado, implementado y mantenido varios sistemas de linea de negocio, tanto web como escritorio. Está en una activa búsqueda por más entendimiento y siempre interesado en conocer personas que desafien sus puntos de vista y que le enseñen una o dos cosas (ojalá más).
+
 ## Introducción ##
 Siempre me encuentro sorprendido por el número de programadores con los que me encuentro. Mucho de sus vidas lo dedican al trabajo del cual somos afortunados por tener la oportunidad de estar haciendo lo que amamos. Esta no es una propiedad única de los programadores, pero es lo suficientemente extraña para que la mayoría de la gente lo encuentre sorprendente. "¿Vas a casa y *trabajas* cada día?" nos preguntan. Solo nuestros más cercanos amigos y colegas apasionados entienden que *trabajo* tiene dos significados para nosotros, ninguno de los que es una esclavitud de 9 a 5.
 
