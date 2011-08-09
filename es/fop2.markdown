@@ -416,3 +416,38 @@ Con este cambio tan simple ahora podemos enlazar las dos plugins sin que una sep
 	});
 
 Usando esta forma, las dos plugisn trabajan juntas sin saber nada una de la otra. esto ayuda a asegurar que tu código se mantenga altamente reusable y cohesivo.
+
+### Poniendolo a prueba ###
+Podemos probar `handle response` entregando un callback falso que pueda hacer algunas verificaciones básicas. Sin embargo, debemos asegurarnos en llamar a `$.post`. Debido a que JavaScript es dinámico como Ruby, tambien provee mecanismos para cambiar nuestras definiciones en tiempo de ejecución. Combinando nuestra reimplementacion dinamica con nuestros callbacks personalizados obtenemos:
+
+	test("ejecuta el callback onSubmit luego de recibir una respuesta", function()
+	{
+		expect(1); // ignora esto por ahora
+
+		// Sobreescribe el metodo $.post para que siempre ejecute el callback con la respuesta preparada
+		$.post = function(url, params, callback) 
+		{ 
+			callback('the new row'); 
+		}
+
+		var $form = $('#a_test_form');
+		$form.fancySubmit(
+		{
+			onSubmit: function(r) 
+			{ 
+				ok(r == 'the new row', 'callback with response was called'); 
+			}
+		});
+
+		$form.submit();
+	});
+
+Ignora la llamada a `expect` por ahora, llegaremos a eso en un minuto. Reimplementamos la funcion `$.post`, evadiendo la pesada implementacion real con algo más manejable. `$.post` escencialmente solo ejecuta el tercer parametro (que si recordamos, arriba en el plugin, es una llamada a `self.handleResponse`) con parametros prestablecidos. Luego, inicializamos el plugin con nuestro callback, el cual va a asegurar que el parametro entregado sea el que esperamos. Finalmente enviamos el formulario para ejecutar el código real.
+
+Acerca el llamado a `expect`, esto le dice a nuestro framework, [Qunit](http://docs.jquery.com/Qunit) en este caso, que debe esperar una llamada al método. Esto es lo principal cuando se trabaja con callback y eventos. ¿Qué podria pasar si no llamamos `expect` y además modificamos nuestro plugin para no llamar al callback? Todavia pasariamos esta prueba porque nunca nada sería asegurado. Especificando `expect(1)` nos aseguramos que nuestra expectativa real (que nuestro callback sea llamado una vez, no más ni menos, y con los parámetros correctos) es invocada. Si `ok` no es llamado, entonces `expect` va a fallar y sabremos que algo anda mal.
+
+La introducción de metodos anónimos y lamdas hacen posible que se escriba código similar en c#, que aveces es incluso mejor que lo que normalmente se escribe.
+
+### En este Capítulo ###
+
+Dependiendo de tu experiencia con ruby y jQuery, este capitulo puede haber sido sobrecojedor. Cubrimos algunos conceptos avanzados en lenguajes que son menos familiares para nosotros. Posiblemente elegimos la parte más complicada de Ruby para meter nuestras narices (metaprogramación), asi que no te desanimes si algo (o mucho) se te ha escapado. También vimos algunos escenarios de pruebas bien distintos. Más importante, en todo caso, fue como pudimos volver a aprender algo que ya conocíamos bien (IoC) explorando cosas que para otras personas, son fundamentales. Con confianza puedes considerar IoC como una caracteristica incluida en Ruby, de manera muy similar a como se puede ver que LINQ es una caracteristica incluida en C#. Incluso si no entiendes las complicaciones de el codigo o las implicaciones que tiene enla programación cotidiana, este capítulo puede aun mostrar el valor de aprender y crecer.
